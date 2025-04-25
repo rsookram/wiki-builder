@@ -1,5 +1,11 @@
 # wiki-builder
 
+`wiki-builder` is a collection of command-line program which convert the
+contents of a dump of Wikipedia into a custom file format. Intended for use
+with the Japanese Wikipedia, but it should work for other languages too.
+[`jwiki`](https://github.com/rsookram/jwiki) is an Android app that can use the
+output file format.
+
 ## Building
 
 Build the binaries by running the following command in the root of this repo:
