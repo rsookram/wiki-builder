@@ -11,7 +11,7 @@ output file format.
 Build the binaries by running the following command in the root of this repo:
 
 ```shell
-go build -o . ./...
+go build -o . . ./cmd/...
 ```
 
 ## Usage

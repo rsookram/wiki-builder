@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="data:image/png;base64,">
+  <style type="text/css">
+    body {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 20px auto;
+      max-width: 40rem;
+    }
+    li {
+      padding: 4px 0px;
+    }
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <form action="/" method="post">
+    <input type="text" name="query" placeholder="Enter your query" autofocus>
+    <input type="submit" value="検索">
+  </form>
+
+  <ul>
+    {{ range . }}
+    <li>
+      <a href="/{{ .Key }}?offset={{ .EntryOffset }}">{{ .Key }}</a>
+    </li>
+    {{ end }}
+  </ul>
+</body>
+</html>
