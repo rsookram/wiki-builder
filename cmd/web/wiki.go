@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"cmp"
 	"compress/zlib"
 	"encoding/binary"
 	"fmt"
@@ -109,7 +110,7 @@ func (w *Wiki) query(prefix string) ([]SearchResult, error) {
 			return nil, fmt.Errorf("query failed to read second level index key: %w", err)
 		}
 
-		cmp := compareTo(w.buf, prefixChars, numKeyBytes)
+		cmp := compareTo(w.buf[:numKeyBytes], prefixChars)
 		if cmp >= 0 {
 			result.Key = w.readString(numKeyBytes)
 			result.EntryOffset = int64(entryOffsetToUInt64(w.buf, numKeyBytes))
@@ -159,7 +160,7 @@ func (w *Wiki) entryOffset(name string) (int64, error) {
 			return -1, fmt.Errorf("entryOffset failed to read second level index key: %w", err)
 		}
 
-		cmp := compareTo(w.buf, nameChars, numKeyBytes)
+		cmp := compareTo(w.buf[:numKeyBytes], nameChars)
 		if cmp == 0 {
 			return int64(entryOffsetToUInt64(w.buf, numKeyBytes)), nil
 		} else if cmp > 0 {
@@ -214,18 +215,17 @@ func (w *Wiki) readSecondLevelIndex() (SearchResult, error) {
 	}, nil
 }
 
-func compareTo(buf []byte, prefixChars []uint16, numBufferBytes int) int {
-	for i := range min(numBufferBytes/2, len(prefixChars)) {
+func compareTo(buf []byte, prefixChars []uint16) int {
+	for i := range min(len(buf)/2, len(prefixChars)) {
 		bufCh := binary.LittleEndian.Uint16(buf[i*2:])
 		prefixCh := prefixChars[i]
 
-		cmp := int(bufCh) - int(prefixCh)
-		if cmp != 0 {
-			return cmp
+		if c := cmp.Compare(bufCh, prefixCh); c != 0 {
+			return c
 		}
 	}
 
-	return numBufferBytes - len(prefixChars)*2
+	return len(buf) - len(prefixChars)*2
 }
 
 func (w *Wiki) readString(numBytes int) string {

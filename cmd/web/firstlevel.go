@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"slices"
 	"unicode/utf16"
 )
 
@@ -47,7 +48,8 @@ func (index firstLevelIndex) offset(s string) (uint32, error) {
 	chars := utf16.Encode([]rune(s))
 
 	for i := range index.offsets {
-		if index.compareTo(i*4, chars) > 0 {
+		key := index.keyChars[i*4:][:4]
+		if slices.Compare(key, chars) > 0 {
 			if i == 0 {
 				return 0, fmt.Errorf("%s is before the first entry in the first level index", s)
 			}
@@ -58,15 +60,4 @@ func (index firstLevelIndex) offset(s string) (uint32, error) {
 
 	// s is after the last key
 	return index.offsets[len(index.offsets)-1], nil
-}
-
-func (index firstLevelIndex) compareTo(keyStart int, chars []uint16) int {
-	for i := range min(len(chars), 4) {
-		cmp := int(index.keyChars[keyStart+i]) - int(chars[i])
-		if cmp != 0 {
-			return cmp
-		}
-	}
-
-	return 4 - len(chars)
 }
